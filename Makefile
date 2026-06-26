@@ -9,9 +9,11 @@ ARCH ?= 80
 BUILD_DIR ?= build
 TARGET ?= $(BUILD_DIR)/$(BACKEND)_gemm_demo
 MCPTI_LIST_TARGET ?= $(BUILD_DIR)/mcpti_list
+GAP1_C500_TARGET ?= $(BUILD_DIR)/gap1_c500
 
 SRC := demos/cutlass_gemm.cu
 MCPTI_LIST_SRC := tools/mcpti_list.cpp
+GAP1_C500_SRC := demos/gap1_c500.cu
 
 NVCCFLAGS ?= -O2 -std=c++17 --expt-relaxed-constexpr
 GENCODE := -gencode arch=compute_$(ARCH),code=sm_$(ARCH)
@@ -39,7 +41,7 @@ else
 $(error Unsupported BACKEND=$(BACKEND). Use BACKEND=maca or BACKEND=cuda)
 endif
 
-.PHONY: all run mcpti-list clean
+.PHONY: all run gap1 gap1-c500 run-gap1-c500 mcpti-list clean
 
 all: $(TARGET)
 
@@ -49,6 +51,18 @@ $(TARGET): $(SRC) Makefile
 
 run: $(TARGET)
 	./$(TARGET)
+
+gap1:
+	python3 tools/gap1_benchmarks.py
+
+gap1-c500: $(GAP1_C500_TARGET)
+
+run-gap1-c500: $(GAP1_C500_TARGET)
+	./$(GAP1_C500_TARGET)
+
+$(GAP1_C500_TARGET): $(GAP1_C500_SRC) Makefile
+	@mkdir -p $(dir $@)
+	CUBRIDGE_HOME=$(abspath $(BUILD_DIR)) $(MACA_PATH)/tools/cu-bridge/bin/cucc -O2 -std=c++17 --expt-relaxed-constexpr $(GENCODE) -Wno-macro-redefined -Wno-sometimes-uninitialized -Wno-maca-compat -Wno-return-type -I$(MACA_PATH)/include -I$(MACA_PATH)/include/mcr $< -o $@ -L$(MACA_PATH)/lib -lmcpti
 
 mcpti-list: $(MCPTI_LIST_TARGET)
 

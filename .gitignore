@@ -8,6 +8,3 @@ cmake_install.cmake
 *.dylib
 *.dll
 *.exe
-
-.agent/
-.codex/

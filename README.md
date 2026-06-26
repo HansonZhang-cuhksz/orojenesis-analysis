@@ -61,3 +61,25 @@ You can also build and run the default problem size with:
 ```bash
 make run BACKEND=maca ARCH=80
 ```
+
+## Gap 1 Benchmarks
+
+The Orojenesis "Gap 1" examples compare maximal effectual buffer size against
+total operand size. Reproduce the Fig. 3 benchmark table and the Fig. 11 GEMM
+shape sweep with:
+
+```bash
+make gap1
+```
+
+To run the same Fig. 3 workload set on MetaX C500 hardware and collect MCPTI
+DRAM/L2 transaction traffic for representative FP32 kernels:
+
+```bash
+make gap1-c500
+./build/gap1_c500
+```
+
+The C500 run prints the analytical Gap 1 values plus measured DRAM bytes and
+L2 transaction bytes. The Gap 1 ratio itself is a workload property, while the
+traffic counters are hardware/runtime measurements for these kernels.
